@@ -176,7 +176,7 @@ See the `examples/` directory for complete usage examples:
 ## Support
 
 - **Documentation**: [https://olaxbt.xyz/skill.md](https://olaxbt.xyz/skill.md)
-- **GitHub**: [https://github.com/olaxbt/olaxbt-skills-hub](https://github.com/olaxbt/olaxbt-skills-hub)
+- **GitHub**: [https://github.com/olaxbt/olaxbt-nexus-data](https://github.com/olaxbt/olaxbt-nexus-data)
 - **Issues**: Report via GitHub issues
 
 ## License
