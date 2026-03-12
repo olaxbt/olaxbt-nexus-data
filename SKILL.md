@@ -1,7 +1,7 @@
 ---
 name: olaxbt-nexus-data
 description: "Access OlaXBT Nexus cryptocurrency data APIs including market data, news, KOL tracking, technical indicators, and wallet-authenticated analysis for trading insights."
-metadata: {"openclaw": {"requires": {"env": ["ETH_WALLET_ADDRESS"]}}}
+metadata: {"clawdbot": {"requires": {"env": ["ETH_WALLET_ADDRESS"]}}}
 ---
 
 # OlaXBT Nexus Data Skill
