@@ -4,7 +4,7 @@ version: 1.0.0
 description: "Official OlaXBT Nexus Data API skill for OpenClaw agents. Provides real-time crypto market data, news, KOL tracking, technical indicators, and comprehensive market analysis through wallet-authenticated API endpoints."
 author: "OlaXBT Team"
 license: "MIT"
-repository: "https://github.com/olaxbt/olaxbt-skills-hub"
+repository: "https://github.com/olaxbt/olaxbt-nexus-data"
 metadata:
   openclaw:
     emoji: "🔮"
