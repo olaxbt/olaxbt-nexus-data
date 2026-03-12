@@ -220,7 +220,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
 ## Support
 
 - **Documentation**: [https://olaxbt.xyz/skill.md](https://olaxbt.xyz/skill.md)
-- **GitHub Issues**: [https://github.com/olaxbt/olaxbt-skills-hub/issues](https://github.com/olaxbt/olaxbt-skills-hub/issues)
+- **GitHub Issues**: [https://github.com/olaxbt/olaxbt-nexus-data/issues](https://github.com/olaxbt/olaxbt-nexus-data/issues)
 - **Email**: hello@olaxbt.xyz
 
 ## License

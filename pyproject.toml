@@ -52,7 +52,7 @@ docs = [
 Homepage = "https://olaxbt.xyz"
 Repository = "https://github.com/olaxbt/olaxbt-skills-hub"
 Documentation = "https://olaxbt.xyz/skill.md"
-Issues = "https://github.com/olaxbt/olaxbt-skills-hub/issues"
+Issues = "https://github.com/olaxbt/olaxbt-nexus-data/issues"
 
 [tool.setuptools.packages.find]
 where = ["src"]
