@@ -1,0 +1,49 @@
+name: olaxbt-nexus-data
+version: 1.0.0
+description: "Official OlaXBT Nexus Data API skill for OpenClaw - Real-time crypto data, news, KOL tracking, technical indicators, and market analysis"
+author: "OlaXBT Team"
+license: "MIT"
+repository: "https://github.com/olaxbt/olaxbt-skills-hub"
+keywords:
+  - "olaxbt"
+  - "nexus"
+  - "crypto"
+  - "trading"
+  - "api"
+  - "blockchain"
+  - "market-data"
+categories:
+  - "crypto"
+  - "data"
+  - "trading"
+  - "api"
+requirements:
+  python: ">=3.8"
+  dependencies:
+    - "web3>=6.0.0"
+    - "requests>=2.28.0"
+    - "pydantic>=2.0.0"
+compatibility:
+  openclaw: ">=2026.3.0"
+  platforms:
+    - "linux"
+    - "macos"
+    - "windows"
+permissions:
+  - "network"
+  - "environment_variables"
+  - "file_system_read"
+skill_type: "python"
+entry_point: "src/olaxbt_nexus_data/__init__.py"
+test_command: "pytest tests/"
+build_command: "pip install -e ."
+icon: "🔮"
+tags:
+  - "official"
+  - "olaxbt"
+  - "crypto-api"
+  - "market-data"
+  - "trading-tools"
+min_openclaw_version: "2026.3.0"
+verified: true
+maintainer: "OlaXBT Team <contact@olaxbt.xyz>"
