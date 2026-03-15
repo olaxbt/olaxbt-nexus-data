@@ -33,6 +33,13 @@ from .security import (
 logger = logging.getLogger(__name__)
 
 
+def _jwt_placeholder_id(token: str) -> str:
+    """Return a short placeholder for rate limiting when using JWT (no wallet in skill)."""
+    if not token or len(token) < 8:
+        return "jwt"
+    return f"jwt:{token[-8:]}"  # last 8 chars only, no secret
+
+
 @dataclass
 class AuthState:
     """Authentication state container."""
@@ -390,5 +397,70 @@ class NexusAuth:
             
             return data
             
+        except requests.exceptions.RequestException as e:
+            raise AuthenticationError(f"Network error: {str(e)}")
+
+
+class NexusAuthJWT:
+    """
+    JWT-only authentication for Nexus API.
+    Uses a pre-obtained JWT (e.g. from the auth flow in the Nexus Skills API spec).
+    The skill does not handle private keys; obtain the JWT outside the skill.
+    """
+
+    def __init__(
+        self,
+        jwt_token: str,
+        auth_url: str,
+        security_config: SecurityConfig,
+        wallet_address: Optional[str] = None,
+    ):
+        self._jwt = jwt_token.strip()
+        if not self._jwt:
+            raise ValidationError("NEXUS_JWT must be a non-empty JWT string.")
+        parts = self._jwt.split(".")
+        if len(parts) != 3:
+            raise ValidationError("NEXUS_JWT must be a valid JWT (three parts).")
+        self.auth_url = auth_url.rstrip("/")
+        self.security_config = security_config
+        self.wallet_address = wallet_address or _jwt_placeholder_id(self._jwt)
+        self.state = AuthState(jwt_token=self._jwt, wallet_address=self.wallet_address)
+        self.state.token_expiry = time.time() + security_config.jwt_ttl
+        logger.info("Auth client initialized with JWT (no private key in skill).")
+
+    def authenticate(self) -> str:
+        return self.get_token()
+
+    def get_token(self) -> str:
+        return self._jwt
+
+    def clear_token(self) -> None:
+        pass  # JWT is provided by env; nothing to clear in skill
+
+    def get_auth_headers(self) -> Dict[str, str]:
+        return {
+            "Authorization": f"Bearer {self._jwt}",
+            "X-Request-ID": generate_request_id(),
+            "X-Wallet-Address": self.wallet_address,
+        }
+
+    def get_credits_balance(self) -> Dict[str, Any]:
+        endpoint = f"{self.auth_url}/credits/balance"
+        try:
+            headers = self.get_auth_headers()
+            response = requests.get(
+                endpoint,
+                headers=headers,
+                timeout=self.security_config.timeout,
+            )
+            if response.status_code == 429:
+                raise RateLimitError("Rate limit exceeded for credits check")
+            response.raise_for_status()
+            data = response.json()
+            if not data.get("success"):
+                raise AuthenticationError(
+                    f"Failed to get credits balance: {data.get('message', 'Unknown error')}"
+                )
+            return data
         except requests.exceptions.RequestException as e:
             raise AuthenticationError(f"Network error: {str(e)}")

@@ -1,0 +1,34 @@
+# Exclude from ClawHub publish bundle.
+# Including .git can cause "SKILL.md required" errors on publish.
+.git
+.gitignore
+.gitattributes
+
+# Python / build
+__pycache__
+*.py[cod]
+*$py.class
+*.so
+.venv
+venv
+.env
+.env.*
+*.egg
+*.egg-info
+.eggs
+dist
+build
+
+# Test / dev
+.pytest_cache
+.coverage
+htmlcov
+.mypy_cache
+.ruff_cache
+
+# IDE / OS
+.idea
+.vscode
+*.swp
+.DS_Store
+Thumbs.db

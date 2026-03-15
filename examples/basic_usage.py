@@ -17,19 +17,15 @@ def main():
     """Main demonstration function."""
     print("=== OlaXBT Nexus Data API Basic Usage Example ===\n")
     
-    # Check environment variables
-    wallet_address = os.getenv("ETH_WALLET_ADDRESS")
-    private_key = os.getenv("ETH_PRIVATE_KEY")
-    
-    if not wallet_address or not private_key:
-        print("❌ Error: Environment variables not set.")
-        print("Please set ETH_WALLET_ADDRESS and ETH_PRIVATE_KEY")
-        print("\nExample:")
-        print('export ETH_WALLET_ADDRESS="0xYourWalletAddress"')
-        print('export ETH_PRIVATE_KEY="0xYourPrivateKey"')
+    # Check environment variable (obtain JWT via Nexus auth flow — see skills/nexus/SKILL.md)
+    jwt = os.getenv("NEXUS_JWT")
+    if not jwt or not jwt.strip():
+        print("❌ Error: NEXUS_JWT not set.")
+        print("Obtain a JWT using the Nexus auth flow (see https://github.com/olaxbt/olaxbt-skills-hub/blob/main/skills/nexus/SKILL.md), then:")
+        print('export NEXUS_JWT="<your-jwt>"')
         return
     
-    print(f"Wallet: {wallet_address[:10]}...")
+    print("Using NEXUS_JWT from environment.")
     print(f"Started at: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
     
     try:
@@ -89,7 +85,7 @@ def main():
     except Exception as e:
         print(f"\n❌ Error: {str(e)}")
         print("\nTroubleshooting tips:")
-        print("1. Check your wallet address and private key")
+        print("1. Ensure NEXUS_JWT is set (obtain via Nexus auth flow)")
         print("2. Ensure you have sufficient credits")
         print("3. Verify network connectivity")
         print("4. Check API status at https://olaxbt.xyz")

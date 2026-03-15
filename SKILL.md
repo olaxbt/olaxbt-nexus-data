@@ -1,12 +1,20 @@
 ---
 name: olaxbt-nexus-data
-description: "Access OlaXBT Nexus cryptocurrency data APIs including market data, news, KOL tracking, technical indicators, and wallet-authenticated analysis for trading insights."
-metadata: {"clawdbot": {"requires": {"env": ["ETH_WALLET_ADDRESS"]}}}
+description: "Access OlaXBT Nexus cryptocurrency data APIs — market data, news, KOL tracking, technical indicators, and trading insights. Uses a wallet-linked JWT; no private key in the skill."
+metadata: {"clawdbot": {"requires": {"env": ["NEXUS_JWT"]}}}
 ---
 
 # OlaXBT Nexus Data Skill
 
-This skill provides access to OlaXBT Nexus cryptocurrency data APIs.
+This skill provides access to OlaXBT Nexus cryptocurrency data APIs via a Python client. The skill uses a **JWT** only; it does not request or handle private keys. Obtain the JWT by following the spec (POST /auth/message → sign with your wallet → POST /auth/wallet → use the returned `token`).
+
+## Required environment variable
+
+| Variable | Purpose |
+|----------|---------|
+| `NEXUS_JWT` | Bearer token for the Nexus data API. Obtain it via the auth flow (POST /auth/message, sign with wallet, POST /auth/wallet). |
+
+Optional: `NEXUS_AUTH_URL`, `NEXUS_DATA_URL` to override API base URLs.
 
 ## When to use this skill
 - When you need real-time cryptocurrency market data
@@ -17,7 +25,7 @@ This skill provides access to OlaXBT Nexus cryptocurrency data APIs.
 
 ## Features
 - 14 comprehensive API endpoints
-- Secure wallet authentication
+- JWT-based auth (obtain token outside the skill; no private key here)
 - Real-time market data
 - KOL and sentiment tracking
 - Technical indicators analysis
@@ -28,17 +36,29 @@ pip install olaxbt-nexus-data
 ```
 
 ## Quick Start
-```python
-from olaxbt_nexus_data import NexusAuth, NexusAPIClient
-auth = NexusAuth(wallet_address="0x...")
-api = NexusAPIClient(auth_client=auth)
-news = api.get_news(limit=10)
+
+1. Obtain a JWT using the [Nexus auth flow](https://github.com/olaxbt/olaxbt-skills-hub/blob/main/skills/nexus/SKILL.md): POST `/auth/message` with your wallet address, sign the returned message with your wallet (e.g. via OpenClaw or a one-time sign-in), then POST `/auth/wallet` to get the token.
+2. Set the token and use the client:
+
+```bash
+export NEXUS_JWT="<your-jwt-token>"
 ```
 
+```python
+from olaxbt_nexus_data import NexusClient
+
+client = NexusClient()  # uses NEXUS_JWT from env
+client.authenticate()
+news = client.news.get_latest(limit=10)
+```
+
+## Same API via HTTP (curl-style)
+
+The underlying API is HTTP. You can call it with any client (curl, fetch, etc.) using the [Nexus Skills API spec](https://github.com/olaxbt/olaxbt-skills-hub/blob/main/skills/nexus/SKILL.md). This Python package is a wrapper that uses your existing JWT.
+
 ## Security
-- Use environment variables for private keys
-- All API calls use HTTPS
-- Rate limiting implemented
+- The skill only reads `NEXUS_JWT` (and optional `NEXUS_*` URLs). It does not request or store private keys.
+- All API calls use HTTPS; rate limiting is implemented.
 
 ## Repository
 https://github.com/olaxbt/olaxbt-nexus-data

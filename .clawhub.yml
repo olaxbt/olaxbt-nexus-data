@@ -1,6 +1,6 @@
 name: olaxbt-nexus-data
 version: 1.0.0
-description: "Official OlaXBT Nexus Data API skill for OpenClaw - Real-time crypto data, news, KOL tracking, technical indicators, and market analysis"
+description: "Official OlaXBT Nexus Data API skill for OpenClaw. Requires NEXUS_JWT (obtain via Nexus auth flow; no private key in skill). Real-time crypto data, news, KOL tracking, technical indicators, and market analysis."
 author: "OlaXBT Team"
 license: "MIT"
 repository: "https://github.com/olaxbt/olaxbt-nexus-data"
@@ -29,10 +29,12 @@ compatibility:
     - "linux"
     - "macos"
     - "windows"
+# JWT only; obtain via Nexus auth flow (see skills/nexus/SKILL.md). No private key in skill.
+required_env:
+  - "NEXUS_JWT"
 permissions:
   - "network"
   - "environment_variables"
-  - "file_system_read"
 skill_type: "python"
 entry_point: "src/olaxbt_nexus_data/__init__.py"
 test_command: "pytest tests/"

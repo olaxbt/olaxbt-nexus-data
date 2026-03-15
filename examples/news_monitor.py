@@ -164,9 +164,9 @@ def main():
     """Main function for news monitoring example."""
     print("=== OlaXBT News Monitoring Example ===\n")
     
-    # Check environment
-    if not os.getenv("ETH_WALLET_ADDRESS") or not os.getenv("ETH_PRIVATE_KEY"):
-        print("❌ Please set ETH_WALLET_ADDRESS and ETH_PRIVATE_KEY environment variables")
+    # Check environment (obtain JWT via Nexus auth flow — see skills/nexus/SKILL.md)
+    if not os.getenv("NEXUS_JWT"):
+        print("❌ Please set NEXUS_JWT (obtain via Nexus auth flow)")
         return
     
     # Create monitor
