@@ -5,15 +5,14 @@
 ![License](https://img.shields.io/badge/license-MIT-yellow)
 ![OpenClaw](https://img.shields.io/badge/OpenClaw-2026.3.0%2B-orange)
 
-Official OlaXBT Nexus Data API integration for OpenClaw agents. This skill provides secure, wallet-authenticated access to real-time cryptocurrency market data, news, KOL tracking, and comprehensive market analysis.
+Official OlaXBT Nexus Data API integration for OpenClaw agents. This skill uses a **JWT only** (no private key in the skill). Obtain the JWT via the [Nexus auth flow](https://github.com/olaxbt/olaxbt-skills-hub/blob/main/skills/nexus/SKILL.md); then set `NEXUS_JWT` and use the client.
 
 ## Features
 
-- **🔐 Secure Authentication**: Ethereum wallet-based JWT authentication
+- **🔐 JWT-only**: No private key in the skill; use a pre-obtained JWT from the Nexus auth flow
 - **📊 14 API Endpoints**: Full coverage of OlaXBT Nexus data services
 - **⚡ Real-time Data**: Live market insights and analysis
-- **🛡️ Enterprise Security**: Military-grade security implementation
-- **🔄 Automatic Token Refresh**: Seamless JWT management
+- **🛡️ Minimal permissions**: Only reads `NEXUS_JWT` and optional `NEXUS_*` URLs
 - **📈 Advanced Analytics**: Technical indicators and smart money tracking
 
 ## Installation
@@ -29,22 +28,25 @@ openclaw skill install olaxbt-nexus-data
 pip install olaxbt-nexus-data
 ```
 
-### Environment Setup
+### Required environment variable
 ```bash
-# Set your Ethereum wallet credentials
-export ETH_WALLET_ADDRESS="0xYourWalletAddress"
-export ETH_PRIVATE_KEY="0xYourPrivateKey"
+# Obtain JWT via the Nexus auth flow (see skills/nexus/SKILL.md), then:
+export NEXUS_JWT="<your-jwt-token>"
 ```
+
+## API vs this Python package
+
+The OlaXBT Nexus API is **HTTP**. You can use it with **any client** (curl, fetch, Postman, etc.) by following the [Nexus Skills API spec](https://github.com/olaxbt/olaxbt-skills-hub/blob/main/skills/nexus/SKILL.md): `POST /auth/message` → sign the message with your wallet → `POST /auth/wallet` → get JWT → call `https://api-data.olaxbt.xyz/api/v1/...` with `Authorization: Bearer <JWT>`. No Python or OpenClaw required.
+
+**This repo** is a **Python wrapper** for that same API. Use it if you want a `pip install` / `openclaw skill install` client instead of hand-rolling HTTP and signing. OpenClaw is an agent framework; it can use either the HTTP spec (curl-style) or this Python skill. Both talk to the same backend.
 
 ## Quick Start
 
 ```python
 from olaxbt_nexus_data import NexusClient
 
-# Initialize client (uses environment variables)
+# Set NEXUS_JWT in env (obtain via Nexus auth flow), then:
 client = NexusClient()
-
-# Authenticate automatically
 client.authenticate()
 
 # Get latest crypto news
@@ -86,38 +88,22 @@ print(f"👥 KOL Activity: {kol_data['total_mentions']} mentions")
 - **Auth Domain**: `https://api.olaxbt.xyz/api`
 - **Data Domain**: `https://api-data.olaxbt.xyz/api/v1`
 
-### Authentication Flow
-```python
-# The client handles authentication automatically
-client = NexusClient(
-    wallet_address="0x...",  # Optional: override env var
-    private_key="0x..."      # Optional: override env var
-)
+### Obtaining a JWT
+The skill does **not** handle private keys. Get a JWT using the [Nexus Skills API auth flow](https://github.com/olaxbt/olaxbt-skills-hub/blob/main/skills/nexus/SKILL.md):
+1. `POST https://api.olaxbt.xyz/api/auth/message` with `{"address": "0x..."}`
+2. Sign the returned message with your wallet (e.g. OpenClaw or one-time sign-in)
+3. `POST https://api.olaxbt.xyz/api/auth/wallet` with address, signature, message, nonce → receive `token` (JWT)
+4. Set `export NEXUS_JWT="<token>"` and use the client
 
-# Manual authentication if needed
-jwt_token = client.auth.get_jwt()
-print(f"JWT Token: {jwt_token[:50]}...")
+```python
+client = NexusClient()  # reads NEXUS_JWT from env
+jwt = client.auth.get_token()
 ```
 
-## Security Features
-
-### Private Key Protection
-- Never stored in plain text
-- Environment variables only
-- Encrypted in memory
-- Automatic cleanup
-
-### JWT Management
-- 1-hour expiration
-- Automatic refresh
-- Encrypted storage
-- Secure transmission
-
-### API Security
-- Rate limiting (1000 requests/hour)
-- Input validation
-- Error sanitization
-- HTTPS enforcement
+## Security
+- **No private key in skill:** Only `NEXUS_JWT` (and optional `NEXUS_AUTH_URL`, `NEXUS_DATA_URL`) are read.
+- **Network:** Only talks to `api.olaxbt.xyz` and `api-data.olaxbt.xyz`. No telemetry.
+- **HTTPS and rate limiting** are enforced.
 
 ## Examples
 
@@ -133,21 +119,18 @@ Real-time news monitoring with filtering and alerts.
 Comprehensive market analysis with multiple data sources.
 
 ### `examples/wallet_auth.py`
-Advanced wallet authentication and JWT management.
+Advanced wallet authentication and JWT management (obtain JWT outside the skill, then pass it in).
 
 ## Configuration
 
 ### Environment Variables
 ```bash
 # Required
-ETH_WALLET_ADDRESS="0xYourWalletAddress"
-ETH_PRIVATE_KEY="0xYourPrivateKey"
+NEXUS_JWT="<your-jwt-from-nexus-auth-flow>"
 
 # Optional
 NEXUS_AUTH_URL="https://api.olaxbt.xyz/api"
 NEXUS_DATA_URL="https://api-data.olaxbt.xyz/api/v1"
-REQUEST_TIMEOUT="30"
-MAX_RETRIES="3"
 ```
 
 ### Client Configuration
@@ -155,19 +138,12 @@ MAX_RETRIES="3"
 from olaxbt_nexus_data import NexusClient
 
 client = NexusClient(
-    # Override environment variables
-    wallet_address="0x...",
-    private_key="0x...",
-    
-    # Custom configuration
+    jwt_token="...",  # optional, else uses NEXUS_JWT
     auth_url="https://api.olaxbt.xyz/api",
     data_url="https://api-data.olaxbt.xyz/api/v1",
     timeout=30,
     max_retries=3,
-    
-    # Security settings
-    encrypt_jwt=True,
-    rate_limit=1000,  # requests per hour
+    rate_limit=1000,
 )
 ```
 
@@ -206,6 +182,10 @@ pytest --cov=olaxbt_nexus_data tests/
 # Type checking
 mypy src/
 ```
+
+## Publishing to ClawHub
+
+To publish this skill to [ClawHub](https://clawhub.ai), see **[PUBLISHING.md](PUBLISHING.md)** for step-by-step instructions (account, CLI, permissions, and updates).
 
 ## Contributing
 
